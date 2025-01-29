@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .password-display {
+            margin: 20px 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: #1f4068;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .password-display:hover {
+            background: #e94560;
+            transform: scale(1.05);
+        }
+
+        .tooltip {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #4ee44e;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-generate {
+            background: linear-gradient(90deg, #12c2e9, #c471ed, #f64f59);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.3s ease;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            opacity: 0.9;
+        }
+
+        .btn-generate:active {
+            transform: translateY(1px);
+        }
+
+        .range-container {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .range-container label {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .range-container input[type="range"] {
+            width: 250px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 5px;
+            background: #1f4068;
+            outline: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .range-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #e94560;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-container input[type="range"]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: #e94560;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .range-value {
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        @keyframes falling-stars {
+            0% {
+                transform: translateY(-100vh) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) translateX(-50px);
+                opacity: 0;
+            }
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: falling-stars 3s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔒 Futuristic Password Generator</h1>
+        <div class="range-container">
+            <label for="password-length">Password Length:</label>
+            <input type="range" id="password-length" min="6" max="20" value="12">
+            <div class="range-value" id="length-value">12</div>
+        </div>
+        <div class="password-display" id="password-display">Click "Generate" to create a password</div>
+        <div class="tooltip" id="tooltip">Password copied!</div>
+        <button class="btn-generate" id="generate-btn">Generate Password</button>
+    </div>
+
+    <script>
+        const passwordDisplay = document.getElementById('password-display');
+        const generateBtn = document.getElementById('generate-btn');
+        const tooltip = document.getElementById('tooltip');
+        const passwordLengthInput = document.getElementById('password-length');
+        const lengthValue = document.getElementById('length-value');
+
+        function generatePassword(length = 12) {
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+[]{}|;:,.<>?';
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                password += characters[randomIndex];
+            }
+            return password;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+
+                setTimeout(() => {
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '0';
+                }, 1500);
+            });
+        }
+
+        generateBtn.addEventListener('click', () => {
+            const passwordLength = parseInt(passwordLengthInput.value, 10);
+            const newPassword = generatePassword(passwordLength);
+            passwordDisplay.textContent = newPassword;
+        });
+
+        passwordDisplay.addEventListener('click', () => {
+            const password = passwordDisplay.textContent;
+            if (password !== 'Click "Generate" to create a password') {
+                copyToClipboard(password);
+            }
+        });
+
+        passwordLengthInput.addEventListener('input', () => {
+            lengthValue.textContent = passwordLengthInput.value;
+        });
+
+        // Create falling stars effect
+        function createStar() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            document.body.appendChild(star);
+
+            setTimeout(() => {
+                star.remove();
+            }, 5000);
+        }
+
+        setInterval(createStar, 150);
+    </script>
+</body>
+</html>

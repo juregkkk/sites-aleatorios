@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Themed Calculator</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #000428, #004e92);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Falling stars animation */
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh);
+                opacity: 0;
+            }
+        }
+
+        .star {
+            position: absolute;
+            top: -10px;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            animation: fall linear infinite;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 320px;
+            text-align: center;
+        }
+
+        .display {
+            background: #001021;
+            color: #00d8ff;
+            font-size: 2rem;
+            font-weight: bold;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            background: radial-gradient(circle, #001021, #003973);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 255, 255, 0.5);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        button.operator {
+            background: #ff4500;
+            color: black;
+        }
+
+        button.equal {
+            background: #00d8ff;
+            color: black;
+            grid-column: span 2;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="number">7</button>
+            <button class="number">8</button>
+            <button class="number">9</button>
+            <button class="operator">/</button>
+
+            <button class="number">4</button>
+            <button class="number">5</button>
+            <button class="number">6</button>
+            <button class="operator">*</button>
+
+            <button class="number">1</button>
+            <button class="number">2</button>
+            <button class="number">3</button>
+            <button class="operator">-</button>
+
+            <button class="number">0</button>
+            <button class="clear">C</button>
+            <button class="equal">=</button>
+            <button class="operator">+</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const buttons = document.querySelectorAll('button');
+
+        let currentInput = '';
+        let operator = null;
+        let previousInput = '';
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.textContent;
+
+                if (button.classList.contains('number')) {
+                    if (currentInput === '0') {
+                        currentInput = value;
+                    } else {
+                        currentInput += value;
+                    }
+                } else if (button.classList.contains('operator')) {
+                    if (currentInput) {
+                        previousInput = currentInput;
+                        currentInput = '';
+                        operator = value;
+                    }
+                } else if (button.classList.contains('equal')) {
+                    if (currentInput && previousInput && operator) {
+                        currentInput = eval(`${previousInput} ${operator} ${currentInput}`);
+                        operator = null;
+                        previousInput = '';
+                        display.style.transform = 'scale(1.1)';
+                        display.style.color = '#ffdd00';
+
+                        setTimeout(() => {
+                            display.style.transform = 'scale(1)';
+                            display.style.color = '#00d8ff';
+                        }, 200);
+                    }
+                } else if (button.classList.contains('clear')) {
+                    currentInput = '';
+                    previousInput = '';
+                    operator = null;
+                }
+
+                display.textContent = currentInput || '0';
+            });
+        });
+
+        // Generate falling stars
+        function createStars() {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            star.style.left = `${Math.random() * 100}vw`;
+            star.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            document.body.appendChild(star);
+
+            setTimeout(() => {
+                star.remove();
+            }, 5000);
+        }
+
+        setInterval(createStars, 200);
+    </script>
+</body>
+</html>
